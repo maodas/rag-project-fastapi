@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI AI Assistant | Showcase</title>
+    <style>
+        /* Professional layout with modern color palette */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; background-color: #f9f9f9; color: #333; }
+        
+        /* Stylized Header */
+        header { background-color: #333; color: white; padding: 10px 20px; border-radius: 8px 8px 0 0; text-align: center; }
+        header h2 { margin: 0; font-weight: 500; }
+
+        /* The wider, chat-like history box */
+        #chat-box { border: 1px solid #ddd; height: 400px; overflow-y: scroll; padding: 15px; margin-bottom: 10px; border-radius: 0 0 8px 8px; background-color: white; }
+        .user-msg { color: #0056b3; text-align: right; margin: 10px 0; font-weight: 600; }
+        .bot-msg { color: #444; text-align: left; margin: 10px 0; background: #f0f0f0; padding: 10px; border-radius: 8px; }
+        #loading { display: none; color: #888; font-size: 0.9em; text-align: center; font-style: italic; margin-bottom: 10px; }
+
+        /* Modern input bar and button */
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        #q { flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1em; }
+        #q:focus { outline: none; border-color: #333; }
+        button { padding: 10px 20px; background-color: #333; color: white; border: none; border-radius: 5px; cursor: pointer; transition: background 0.3s; }
+        button:hover { background-color: #555; }
+
+        /* Darker Footer with inscriptions */
+        footer { background-color: #f1f1f1; padding: 15px; border-radius: 8px; text-align: center; font-size: 0.9em; border: 1px solid #ddd; }
+        footer a { color: #007bff; text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>FastAPI AI Assistant</h2>
+    </header>
+    
+    <div id="chat-box">
+        <div class="bot-msg"><b>Bot:</b> Hello! I am trained on the FastAPI documentation. Ask me anything about path operations, Pydantic models, or how to get started!</div>
+    </div>
+    
+    <div id="loading">Thinking...</div>
+    
+    <div class="input-group">
+        <input type="text" id="q" placeholder="Ask a question about FastAPI and press Enter..." onkeydown="handleEnter(event)">
+        <button onclick="ask()">Send</button>
+    </div>
+
+    <footer>
+        <p>Created by: <b>Marcos R.</b></p>
+        <p>Showcase of more projects in: <a href="https://maodas.online" target="_blank">maodas.online</a></p>
+    </footer>
+
+    <script>
+        // FUNCTION 1: Handle sending the request (existing logic, updated for UI)
+        async function ask() {
+            const input = document.getElementById('q');
+            const chatBox = document.getElementById('chat-box');
+            const loading = document.getElementById('loading');
+            const q = input.value;
+            
+            if(!q) return;
+
+            // Update UI with user question
+            chatBox.innerHTML += `<div class="user-msg">You: ${q}</div>`;
+            input.value = ''; // Clear input field
+            loading.style.display = 'block';
+
+            // Automatic scrolling to the bottom
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Post request to the backend
+            try {
+                const res = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({question: q})
+                });
+                const data = await res.json();
+                
+                // Remove loading and show bot response
+                loading.style.display = 'none';
+                chatBox.innerHTML += `<div class="bot-msg"><b>Bot:</b> ${data.answer}</div>`;
+            } catch (error) {
+                loading.style.display = 'none';
+                chatBox.innerHTML += `<div class="bot-msg" style="color:red"><b>Error:</b> Could not reach the backend.</div>`;
+            }
+            
+            // Final scroll to show the bot's full answer
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // FUNCTION 2: Allow 'Enter' key to trigger the 'ask()' function
+        function handleEnter(event) {
+            // Check if the key pressed was 'Enter' (key code 13)
+            if (event.key === 'Enter') {
+                ask();
+            }
+        }
+    </script>
+</body>
+</html>

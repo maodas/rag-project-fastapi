@@ -1,3 +1,5 @@
+
+import os
 from fastapi import FastAPI
 from fastapi.responses import FileResponse # Import this
 from pydantic import BaseModel
@@ -26,3 +28,10 @@ class Query(BaseModel):
 async def ask_bot(query: Query):
     answer = generate_answer(query.question)
     return {"answer": answer}
+
+@app.get("/debug")
+async def debug_env():
+    return {
+        "supabase_url_configured": os.environ.get("SUPABASE_URL") is not None,
+        "groq_key_configured": os.environ.get("GROQ_API_KEY") is not None
+    }

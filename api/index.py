@@ -5,6 +5,7 @@ from fastapi.responses import FileResponse # Import this
 from pydantic import BaseModel
 from app.chat import generate_answer
 from fastapi.middleware.cors import CORSMiddleware
+from app.main import app
 
 app = FastAPI()
 

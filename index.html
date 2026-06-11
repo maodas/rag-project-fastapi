@@ -58,36 +58,33 @@
             const input = document.getElementById('q');
             const chatBox = document.getElementById('chat-box');
             const loading = document.getElementById('loading');
-            const q = input.value;
+            const q = input.value; // This is the variable holding your text
             
             if(!q) return;
 
-            // Update UI with user question
+            // Update UI
             chatBox.innerHTML += `<div class="user-msg">You: ${q}</div>`;
-            input.value = ''; // Clear input field
+            input.value = '';
             loading.style.display = 'block';
-
-            // Automatic scrolling to the bottom
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            // Post request to the backend
             try {
-                const res = await fetch('/ask', {
+                // Corrected: use the 'q' variable here
+                const response = await fetch('/api/ask', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({question: q})
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: q }) 
                 });
-                const data = await res.json();
                 
-                // Remove loading and show bot response
+                // Corrected: use 'response' not 'res'
+                const data = await response.json();
+                
                 loading.style.display = 'none';
                 chatBox.innerHTML += `<div class="bot-msg"><b>Bot:</b> ${data.answer}</div>`;
             } catch (error) {
                 loading.style.display = 'none';
-                chatBox.innerHTML += `<div class="bot-msg" style="color:red"><b>Error:</b> Could not reach the backend.</div>`;
+                chatBox.innerHTML += `<div class="bot-msg" style="color:red"><b>Error:</b> ${error.message}</div>`;
             }
-            
-            // Final scroll to show the bot's full answer
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 

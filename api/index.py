@@ -4,10 +4,8 @@ from pydantic import BaseModel
 from app.chat import generate_answer
 from fastapi.middleware.cors import CORSMiddleware
 
-# Initialize the app once
 app = FastAPI()
 
-# Enable CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,7 +13,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/api/ask") # Match this with your frontend fetch
+class Query(BaseModel):
+    question: str
+
+@app.post("/api/ask")
 async def ask_bot(query: Query):
-    answer = generate_answer(query.question)
-    return {"answer": answer}
+    try:
+        answer = generate_answer(query.question)
+        return {"answer": answer}
+    except Exception as e:
+        return {"answer": f"Error: {str(e)}"}
+
+@app.get("/api/debug")
+async def debug_env():
+    return {
+        "supabase_url": os.environ.get("SUPABASE_URL") is not None,
+        "groq_key": os.environ.get("GROQ_API_KEY") is not None,
+        "hf_token": os.environ.get("HUGGINGFACEHUB_API_TOKEN") is not None
+    }
